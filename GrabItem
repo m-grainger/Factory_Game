@@ -1,0 +1,174 @@
+using UnityEngine;
+
+public class GrabItem : MonoBehaviour {
+    public float speed;
+    public bool canHold = true;
+
+    public GameObject cake;
+    public GameObject otherCake;
+    public Transform HoldZone;
+
+    public GameObject[] combo_objects;
+
+    void Update()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            Debug.Log("MouseButtonHeldDown");
+            if (!canHold)
+            {
+                if (otherCake)
+                {
+                    CreateCake(findPairings(cake, otherCake), otherCake);
+                    //Destroy(otherCake);
+                    otherCake = null;
+                }
+                else
+                {
+                    throw_drop();
+                }
+            }
+            else
+            {
+                Pickup();
+            }
+        }//mause If
+
+        if (!canHold && cake)
+        {
+            //Debug.Log("Adjusting cake transform");
+            cake.transform.position = HoldZone.position;
+        }
+    }//update
+
+    //We can use trigger or Collision
+    void OnTriggerEnter(Collider col)
+    {
+        Debug.Log("Trigger enter");
+        if (col.gameObject.tag == "Cake")
+        {
+            Debug.Log("Triggering Object is cake");
+            if (!cake)
+            { // if we don't have anything holding
+                Debug.Log("HeldItem slot is empty, so cake is set onTriggerEnter");
+                cake = col.gameObject;
+            }
+            else
+            {
+                Debug.Log("HeldItem slot is full, so otherCake is set onTriggerEnter");
+                otherCake = col.gameObject;
+            }
+        }
+    }
+
+    //We can use trigger or Collision
+    void OnTriggerExit(Collider col)
+    {
+        Debug.Log("Trigger exit");
+        if (col.gameObject.tag == "Cake")
+        {
+            Debug.Log("TriggerExiting Object was cake");
+            if (canHold)
+            {
+                Debug.Log("cake is now null");
+                cake = null;
+            }
+            else
+            {
+                Debug.Log("otherCake is now null");
+                otherCake = null;
+            }
+        }
+    }
+
+
+    private void Pickup()
+    {
+        Debug.Log("Calling pickup");
+        if (!cake)
+        {
+            Debug.Log("Returning from pickup()");
+            return;
+        }
+
+        cake.GetComponent<Rigidbody>().isKinematic = true;
+        //We set the object parent to our HoldZone empty object.
+        cake.transform.SetParent(HoldZone);
+
+        //Set gravity to false while holding it
+        cake.GetComponent<Rigidbody>().useGravity = false;
+
+        //we apply the same rotation our main object (Camera) has.
+        cake.transform.localRotation = transform.rotation;
+        //We re-position the cake on our HoldZone object 
+        cake.transform.position = HoldZone.position;
+        Debug.Log("Cake is now picked up to HoldZone");
+        canHold = false;
+    }
+
+    private void throw_drop()
+    {
+        Debug.Log("Throw_drop called");
+        if (!cake)
+        {
+            return;
+        }
+       
+        //Set our Gravity to true again.
+        cake.GetComponent<Rigidbody>().useGravity = true;
+        // we don't have anything to do with our cake field anymore
+        
+        cake.GetComponent<Rigidbody>().isKinematic = false;
+        //Apply velocity on throwing
+        Debug.Log("Throwing cake");
+        HoldZone.GetChild(0).gameObject.GetComponent<Rigidbody>().velocity = transform.forward * speed;
+
+        
+        //Unparent our cake
+        HoldZone.GetChild(0).parent = null;
+        cake = null;
+        canHold = true;
+    }
+    private string findPairings(GameObject cake, GameObject otherCake)
+    {
+        char[] delimiters = { '_', '(' };
+        string prefix = cake.ToString().Split(delimiters)[1];
+        string suffix = otherCake.ToString().Split(delimiters)[1];
+        Debug.Log("Pairing found: " + prefix + suffix);
+        if (comparePairs(prefix, suffix))
+        {
+            return (prefix + suffix);
+        }
+        else
+        {
+            return (suffix + prefix);
+        }
+    }
+    private void CreateCake(string cakeName, GameObject otherCake)
+    {
+        Vector3 spawnPos = otherCake.transform.position;
+        Debug.Log("spawnPos is " + spawnPos.ToString());
+        char[] delimeters = { '_', ' ' };
+        for (int i = 0; i < combo_objects.Length; i++)
+        {
+            Debug.Log("Checking combo_objects[" + i.ToString() + "] " + combo_objects[i].ToString() + " against cakeName: " + cakeName);
+            if (combo_objects[i].ToString().Split(delimeters)[1].Equals(cakeName))
+            {
+                Debug.Log("Instantiating new cake");
+                Instantiate(combo_objects[i], spawnPos, otherCake.transform.rotation);
+                Destroy(otherCake);
+                break;
+            }
+        }
+    }
+    private bool comparePairs(string pref, string suff)
+    {
+        int p = 0;
+        int s = 0;
+        int.TryParse(pref, out p);
+        int.TryParse(suff, out s);
+
+        return p >= s;
+
+    }
+}
