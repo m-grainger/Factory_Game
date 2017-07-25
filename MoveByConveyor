@@ -1,0 +1,25 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class MoveByConveyor : MonoBehaviour {
+
+    public float conveyor_speed;
+    public bool is_On;
+    public int xDirection;
+    public int zDirection;
+
+    private Rigidbody rb;
+
+    void OnCollisionStay(Collision cake)
+    {
+        if (is_On)
+        {
+			rb = cake.gameObject.GetComponent<Rigidbody>();
+            float beltVelocity = conveyor_speed * Time.deltaTime;
+            //Debug.Log("trying to move right");
+            rb.position = new Vector3(rb.position.x +
+                beltVelocity * xDirection, rb.position.y, rb.position.z + beltVelocity * zDirection);
+        }
+    }
+}
