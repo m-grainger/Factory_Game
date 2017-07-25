@@ -1,0 +1,28 @@
+using UnityEngine;
+using UnityEngine.UI;
+using System.Collections;
+using System.Collections.Generic;
+
+public class Score : MonoBehaviour 
+{
+	public Text countText;
+	private int count;
+
+	void Start()
+	{
+		count = 0; 
+		SetScoreText ();
+	}
+
+	void onTriggerEnter(Collider other)
+	{
+		if (other.gameObject.CompareTag("Cake"))
+			count += 10;
+			SetScoreText ();		
+	}
+
+	void SetScoreText ()
+	{
+		countText.text = "Count: " + count.ToString ();
+	}
+}
