@@ -1,0 +1,48 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class Spawner : MonoBehaviour {
+
+	public GameObject[] spawnItem;
+	public Vector3 spawnValues;
+	public bool stop;
+	public int randItem;
+	public int startWait;
+	public float spawnWait;
+	public float spawnMostWait;
+	public float spawnLeastWait;
+
+	void Start () 
+	{
+		spawnWait = Random.Range (spawnLeastWait, spawnMostWait); // creates new random float value
+	
+		StartCoroutine (waitSpawner ());
+	}
+	
+
+	void Update () 
+	{
+	}
+
+	IEnumerator waitSpawner ()
+	{
+		yield return new WaitForSeconds (startWait);
+
+		while (!stop) 
+		{
+			randItem = Random.Range (0, 10); // Values can be changed.
+
+			Vector3 spawnPosition = new Vector3(Random.Range(-spawnValues.x, spawnValues.x), 1, Random.Range(-spawnValues.x, spawnValues.x)); // Sets random spawn location
+
+			Instantiate(spawnItem[randItem], spawnPosition + transform.TransformPoint (0,0,0), 
+				gameObject.transform.rotation);
+
+			yield return new WaitForSeconds (spawnWait); 
+
+		spawnWait = Random.Range (spawnLeastWait, spawnMostWait); // creates new random float value
+		}
+	}
+
+	
+}
