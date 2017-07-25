@@ -1,0 +1,39 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class CombineCakeObjects : MonoBehaviour {
+    
+    public Dictionary<string[], string> CombosDict;
+    private Vector3 spawnPosition;
+    public GameObject[] combo_objects;
+
+    //public CombineCakeObjects(GameObject[] cO)
+    //{
+    //    string[] key = { "Cake (Clone)", "Cake With No Frosting (Clone)" };
+    //    this.CombosDict.Add(key, "Double Decker Cake");
+    //    this.combo_objects = cO;
+    //}
+
+    public void findPairings(GameObject cake, GameObject otherCake)
+    {
+        string value = "";
+        string[] nextKey = { cake.ToString(), otherCake.ToString() };
+        if (CombosDict.TryGetValue(nextKey, out value))
+        {
+            CreateCake(value, otherCake);
+        } 
+    }
+    public void CreateCake(string cakeName, GameObject otherCake)
+    {
+        Vector3 spawnPos = new Vector3(0,0,0);
+        for (int i = 0; i < combo_objects.Length; i++)
+        {
+            if (combo_objects[i].ToString() == cakeName)
+            {
+                Instantiate(combo_objects[i], spawnPos + transform.TransformPoint (0,0,0), otherCake.transform.rotation);
+                break;
+            }
+        }
+    }
+}
