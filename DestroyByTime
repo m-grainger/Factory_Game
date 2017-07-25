@@ -1,0 +1,12 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class DestroyByTime : MonoBehaviour {
+    public float object_lifetime;
+
+	void Start () 
+  {
+     Destroy(gameObject, object_lifetime);	
+	}
+}
